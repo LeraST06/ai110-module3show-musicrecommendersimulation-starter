@@ -17,17 +17,11 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real platforms like Spotify use two main approaches: collaborative filtering (based on what similar users listened to) and content-based filtering (based on the song's own attributes like tempo or mood). This simulation uses content-based filtering only.
 
-Some prompts to answer:
+Each song has attributes including `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`. The `UserProfile` stores a user's `favorite_genre`, `favorite_mood`, `target_energy`, and whether they `likes_acoustic` music.
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
-
-You can include a simple diagram or bullet list if helpful.
+The recommender scores every song by checking how well it matches the user's profile — genre and mood matches earn the most points, energy closeness adds a smaller bonus — then returns the top-ranked results.
 
 ---
 
