@@ -72,24 +72,25 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     Scores a single song against a user preference dictionary.
     Returns a numeric score and a list of human-readable reasons.
 
-    Algorithm recipe:
-      +2.0  genre match
+    Algorithm recipe (EXPERIMENT: genre halved, energy doubled):
+      +1.0  genre match      (was 2.0)
       +1.5  mood match
-      +1.0  energy similarity  (1 - abs difference, so closer = more points)
+      +2.0  energy similarity  (was 1.0) — scaled by (1 - abs difference)
       +0.5  acousticness bonus (only when likes_acoustic is True)
+    Max possible score: 5.0 (unchanged)
     """
     score = 0.0
     reasons = []
 
     if song["genre"].lower() == user_prefs.get("genre", "").lower():
-        score += 2.0
-        reasons.append("genre match (+2.0)")
+        score += 1.0
+        reasons.append("genre match (+1.0)")
 
     if song["mood"].lower() == user_prefs.get("mood", "").lower():
         score += 1.5
         reasons.append("mood match (+1.5)")
 
-    energy_similarity = 1.0 - abs(user_prefs.get("energy", 0.5) - song["energy"])
+    energy_similarity = (1.0 - abs(user_prefs.get("energy", 0.5) - song["energy"])) * 2.0
     score += energy_similarity
     reasons.append(f"energy similarity (+{energy_similarity:.2f})")
 
