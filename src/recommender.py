@@ -37,15 +37,34 @@ class Recommender:
     def __init__(self, songs: List[Song]):
         self.songs = songs
 
+    def _score(self, user: UserProfile, song: Song) -> float:
+        """Compute a relevance score for a Song against a UserProfile."""
+        score = 0.0
+        if song.genre.lower() == user.favorite_genre.lower():
+            score += 2.0
+        if song.mood.lower() == user.favorite_mood.lower():
+            score += 1.5
+        score += 1.0 - abs(user.target_energy - song.energy)
+        if user.likes_acoustic:
+            score += song.acousticness * 0.5
+        return score
+
     def recommend(self, user: UserProfile, k: int = 5) -> List[Song]:
         """Return the top k songs ranked by relevance to the user's taste profile."""
-        # TODO: Implement recommendation logic
-        return self.songs[:k]
+        return sorted(self.songs, key=lambda s: self._score(user, s), reverse=True)[:k]
 
     def explain_recommendation(self, user: UserProfile, song: Song) -> str:
         """Return a human-readable explanation of why a song was recommended."""
-        # TODO: Implement explanation logic
-        return "Explanation placeholder"
+        reasons = []
+        if song.genre.lower() == user.favorite_genre.lower():
+            reasons.append("genre match (+2.0)")
+        if song.mood.lower() == user.favorite_mood.lower():
+            reasons.append("mood match (+1.5)")
+        energy_sim = 1.0 - abs(user.target_energy - song.energy)
+        reasons.append(f"energy similarity (+{energy_sim:.2f})")
+        if user.likes_acoustic and song.acousticness > 0:
+            reasons.append(f"acoustic bonus (+{song.acousticness * 0.5:.2f})")
+        return "Recommended because: " + ", ".join(reasons) + "."
 
 def load_songs(csv_path: str) -> List[Dict]:
     """
@@ -72,25 +91,25 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
     Scores a single song against a user preference dictionary.
     Returns a numeric score and a list of human-readable reasons.
 
-    Algorithm recipe (EXPERIMENT: genre halved, energy doubled):
-      +1.0  genre match      (was 2.0)
+    Algorithm recipe:
+      +2.0  genre match
       +1.5  mood match
-      +2.0  energy similarity  (was 1.0) — scaled by (1 - abs difference)
+      +1.0  energy similarity  (1 - abs difference, so closer = more points)
       +0.5  acousticness bonus (only when likes_acoustic is True)
-    Max possible score: 5.0 (unchanged)
+    Max possible score: 5.0
     """
     score = 0.0
     reasons = []
 
     if song["genre"].lower() == user_prefs.get("genre", "").lower():
-        score += 1.0
-        reasons.append("genre match (+1.0)")
+        score += 2.0
+        reasons.append("genre match (+2.0)")
 
     if song["mood"].lower() == user_prefs.get("mood", "").lower():
         score += 1.5
         reasons.append("mood match (+1.5)")
 
-    energy_similarity = (1.0 - abs(user_prefs.get("energy", 0.5) - song["energy"])) * 2.0
+    energy_similarity = 1.0 - abs(user_prefs.get("energy", 0.5) - song["energy"])
     score += energy_similarity
     reasons.append(f"energy similarity (+{energy_similarity:.2f})")
 
