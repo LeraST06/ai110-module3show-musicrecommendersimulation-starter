@@ -21,7 +21,15 @@ Real platforms like Spotify use two main approaches: collaborative filtering (ba
 
 Each song has attributes including `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, and `acousticness`. The `UserProfile` stores a user's `favorite_genre`, `favorite_mood`, `target_energy`, and whether they `likes_acoustic` music.
 
-The recommender scores every song by checking how well it matches the user's profile — genre and mood matches earn the most points, energy closeness adds a smaller bonus — then returns the top-ranked results.
+The recommender scores every song by checking how well it matches the user's profile, then returns the top-ranked results.
+
+**Algorithm Recipe:**
+- +2.0 points if the genre matches
+- +1.5 points if the mood matches
+- up to +1.0 points based on how close the song's energy is to the user's target
+- up to +0.5 points for acousticness, but only if the user likes acoustic music
+
+**Potential biases:** Because genre carries the most weight, a same-genre song with the wrong mood can still outscore a song that perfectly matches the mood but belongs to a different genre. The system might also over-prioritize genre and cause a "filter bubble", a chill jazz fan might never see a great ambient track even if the vibe is nearly identical.
 
 ---
 
@@ -57,6 +65,12 @@ pytest
 ```
 
 You can add more tests in `tests/test_recommender.py`.
+
+---
+
+## Sample Terminal Output
+
+![Terminal output showing top recommendations](Screenshot1.png)
 
 ---
 
