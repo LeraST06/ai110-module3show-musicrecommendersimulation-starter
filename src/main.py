@@ -1,34 +1,41 @@
 """
-Command line runner for the Music Recommender Simulation.
+Command line runner for the Music Recommender Simulation (VibeMatch 2.0).
 
-This file helps you quickly run and test your recommender.
-
-You will implement the functions in recommender.py:
-- load_songs
-- score_song
-- recommend_songs
+Run from the project root:
+    python3 src/main.py
 """
 
 from recommender import load_songs, recommend_songs
+from guardrails import validate_user_prefs, validate_songs, validate_k
+from ai_explainer import generate_explanation
 
 
-def print_recommendations(label: str, user_prefs: dict, songs: list, k: int = 5) -> None:
-    """Print a labeled recommendation block for a given user profile."""
+def print_recommendations(label: str, user_prefs: dict, songs: list, k: int = 5, use_ai: bool = False) -> None:
+    """Print a labeled recommendation block with an optional AI-generated explanation for the top result."""
+    validate_user_prefs(user_prefs)
+    validate_k(k)
+
     recommendations = recommend_songs(user_prefs, songs, k=k)
-    print("\n" + "=" * 44)
+
+    print("\n" + "=" * 50)
     print(f"  {label}")
-    prefs_summary = " | ".join(f"{k}: {v}" for k, v in user_prefs.items())
+    prefs_summary = " | ".join(f"{key}: {val}" for key, val in user_prefs.items())
     print(f"  {prefs_summary}")
-    print("=" * 44)
+    print("=" * 50)
+
     for i, rec in enumerate(recommendations, start=1):
         song, score, explanation = rec
         print(f"\n#{i}  {song['title']} by {song['artist']}")
         print(f"    Score : {score:.2f} / 5.0")
         print(f"    Why   : {explanation}")
+        if i == 1 and use_ai:
+            ai_note = generate_explanation(user_prefs, song, score, explanation)
+            print(f"    AI    : {ai_note}")
 
 
 def main() -> None:
     songs = load_songs("data/songs.csv")
+    validate_songs(songs)
 
     profiles = [
         (
@@ -53,8 +60,8 @@ def main() -> None:
         ),
     ]
 
-    for label, user_prefs in profiles:
-        print_recommendations(label, user_prefs, songs)
+    for i, (label, user_prefs) in enumerate(profiles):
+        print_recommendations(label, user_prefs, songs, use_ai=(i == 0))
 
 
 if __name__ == "__main__":
