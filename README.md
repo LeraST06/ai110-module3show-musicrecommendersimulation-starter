@@ -2,8 +2,7 @@
 
 ## Video Walkthrough
 
-<!-- After recording, replace the line below with your Loom link -->
-**Loom walkthrough:** *(link to be added before submission)*
+**Demo video:** [CodepathFinalProject.mp4](CodepathFinalProject.mp4)
 
 ---
 
