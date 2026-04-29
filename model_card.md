@@ -26,7 +26,7 @@ Each song is scored based on how well it matches the user's profile. Genre and m
 | **Max possible** | **5.0** |
 
 **Explanation (AI layer)**
-After scoring, each recommendation is sent to Gemini (`gemini-2.0-flash`) via the Gemini API. Gemini gets the user preferences, the song details, the score, and the match reasons, then writes a 2-sentence explanation of why the song fits. If the API is unavailable, the system uses the rule-based reason string instead.
+After scoring, each recommendation is sent to Gemini (`gemma-3-27b-it`) via the Gemini API. Gemini gets the user preferences, the song details, the score, and the match reasons, then writes a 2-sentence explanation of why the song fits. If the API is unavailable, the system uses the rule-based reason string instead.
 
 **Guardrails**
 Before any scoring happens, `guardrails.py` checks all inputs:
